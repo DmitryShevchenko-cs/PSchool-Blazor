@@ -11,6 +11,10 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IParentService, ParentService>();
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+builder.Services.AddScoped(sp => new HttpClient 
+{ 
+    BaseAddress = new Uri(builder.Configuration["ApiBaseAddress"] ?? throw new InvalidOperationException()) 
+});
+
 
 await builder.Build().RunAsync();

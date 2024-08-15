@@ -2,7 +2,7 @@ using PSchool.Client.Services.Interfaces;
 
 namespace PSchool.Client.Services;
 
-public class StudentService : IStudentService
+public class StudentService(HttpClient httpClient) : IStudentService
 {
     
 }
