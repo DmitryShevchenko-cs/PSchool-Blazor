@@ -1,0 +1,66 @@
+@page "/update-student/{id:int}"
+@using AutoMapper
+@using PSchool.Client.Models
+@using PSchool.Client.Services.Interfaces
+@inject IStudentService StudentService
+@inject NavigationManager Navigation
+@inject IMapper Mapper
+
+<h3>Update Student</h3>
+
+@if (student == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="student" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label for="firstName">First Name:</label>
+            <InputText id="firstName" @bind-Value="student.FirstName" />
+        </div>
+        <div>
+            <label for="secondName">Second Name:</label>
+            <InputText id="secondName" @bind-Value="student.SecondName" />
+        </div>
+        <div>
+            <label for="email">Email:</label>
+            <InputText id="email" @bind-Value="student.Email" />
+        </div>
+        <div>
+            <label for="phoneNumber">Phone Number:</label>
+            <InputText id="phoneNumber" @bind-Value="student.PhoneNumber" />
+        </div>
+        <div>
+            <label for="group">Group:</label>
+            <InputText id="group" @bind-Value="student.Group" />
+        </div>
+
+        <button type="submit">Save</button>
+        <button type="button" @onclick="Cancel">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private StudentViewModel student;
+
+    protected override async Task OnInitializedAsync()
+    {
+        student = await StudentService.GetStudents(Id);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await StudentService.UpdateStudent(Mapper.Map<StudentUpdateModel>(student));
+        Navigation.NavigateTo("/");
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

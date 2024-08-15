@@ -1,0 +1,94 @@
+@page "/students"
+@using PSchool.Client.Models
+@using PSchool.Client.Services.Interfaces
+@inject IStudentService StudentsService
+@inject NavigationManager Navigation
+
+@if (students == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="student-table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>First name</th>
+                <th>Second name</th>
+                <th>Email</th>
+                <th>Phone number</th>
+                <th>Group</th>
+                <th>Parents</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in students.Data)
+            {
+                <tr>
+                    <td>@student.Id</td>
+                    <td>@student.FirstName</td>
+                    <td>@student.SecondName</td>
+                    <td>@student.Email</td>
+                    <td>@student.PhoneNumber</td>
+                    <td>@student.Group</td>
+                    <td>
+                        @foreach (var parent in student.Parents)
+                        {
+                            <span>@parent.FirstName @parent.SecondName</span><br />
+                        }
+                    </td>
+                    <td>
+                        <button @onclick="() => NavigateToUpdate(student.Id)">Update</button>
+                        <button @onclick="() => DeleteStudent(student.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        @if (CurrentPage > 1)
+        {
+            <button @onclick="() => LoadStudents(CurrentPage - 1)">Previous</button>
+        }
+        @if (CurrentPage < students.TotalPages)
+        {
+            <button @onclick="() => LoadStudents(CurrentPage + 1)">Next</button>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public int CurrentPage { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+    
+    private PaginationResponse<StudentViewModel> students;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadStudents(CurrentPage);
+    }
+
+    private async Task LoadStudents(int page)
+    {
+        CurrentPage = page;
+        students = await StudentsService.GetStudents(new PaginationRequest
+        {
+            CurrentPage = CurrentPage,
+            PageSize = 5
+        });
+    }
+
+    private void NavigateToUpdate(int id)
+    {
+        Navigation.NavigateTo($"/update-student/{id}");
+    }
+
+    private async Task DeleteStudent(int id)
+    {
+        await StudentsService.DelStudent(id);
+        await LoadStudents(CurrentPage);
+    }
+}
