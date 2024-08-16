@@ -8,7 +8,7 @@ public interface IStudentService
         CancellationToken cancellationToken = default);
     Task<StudentViewModel> GetStudents(int studentId, CancellationToken cancellationToken = default);
     
-    Task<StudentViewModel> PostStudent(StudentCreateModel studentCreateModel,
+    Task PostStudent(StudentCreateModel studentCreateModel,
         CancellationToken cancellationToken = default);
     
     Task UpdateStudent(StudentUpdateModel studentCreateModel,
@@ -17,7 +17,7 @@ public interface IStudentService
     Task DelStudent(int studentId,
         CancellationToken cancellationToken = default);
     
-    Task<StudentViewModel> RemoveParent(int studentId, int parentId,
+    Task RemoveParent(int studentId, int parentId,
         CancellationToken cancellationToken = default);
     
 }

@@ -1,0 +1,29 @@
+.parent {
+    margin-bottom: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.parent div {
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.children {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.child {
+    border: 1px solid black;
+    padding: 15px;
+    border-radius: 8px;
+    width: 300px;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+}
+
+.child div {
+    margin-bottom: 8px;
+    font-size: 14px;
+}

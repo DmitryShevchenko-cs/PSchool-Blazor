@@ -1,0 +1,70 @@
+@page "/parent-details/{Id:int}"
+@using PSchool.Client.Models
+@using PSchool.Client.Services.Interfaces
+@inject IParentService ParentService
+@inject NavigationManager Navigation
+
+<h2>Parent Details</h2>
+
+@if (parent == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="parent">
+        <div>
+            <strong>First Name:</strong> @parent.FirstName
+        </div>
+        <div>
+            <strong>Second Name:</strong> @parent.SecondName
+        </div>
+        <div>
+            <strong>Email:</strong> @parent.Email
+        </div>
+        <div>
+            <strong>Phone Number:</strong> @parent.PhoneNumber
+        </div>
+    </div>
+
+    <h3>Children</h3>
+    <div class="children">
+        @foreach (var child in parent.Children)
+        {
+            <div class="child" @onclick="() => NavigateToDetail(child.Id)" style="cursor: pointer;">
+                <div>
+                    <strong>First Name:</strong> @child.FirstName
+                </div>
+                <div>
+                    <strong>Second Name:</strong> @child.SecondName
+                </div>
+                <div>
+                    <strong>Email:</strong> @child.Email
+                </div>
+                <div>
+                    <strong>Phone Number:</strong> @child.PhoneNumber
+                </div>
+                <div>
+                    <strong>Group:</strong> @child.Group
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private ParentViewModel parent;
+
+    protected override async Task OnInitializedAsync()
+    {
+        parent = await ParentService.GetParents(Id);
+    }
+    
+    private void NavigateToDetail(int id)
+    {
+        Navigation.NavigateTo($"/student-details/{id}");
+    }
+
+}

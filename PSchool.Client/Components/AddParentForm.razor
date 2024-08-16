@@ -1,0 +1,70 @@
+@page "/add-parent/{studentEmail?}"
+@using PSchool.Client.Models
+@using PSchool.Client.Services.Interfaces
+@inject IParentService ParentService
+@inject IStudentService StudentService
+@inject NavigationManager Navigation
+
+<div class="add-parent-form">
+    <h3>Add Parent</h3>
+
+    <EditForm Model="parent" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+
+        <div>
+            <label>Student Email</label>
+            <InputText @bind-Value="studentEmail" class="form-control"/>
+            <ValidationMessage For="@(() => studentEmail)"/>
+        </div>
+
+        <div>
+            <label>First Name</label>
+            <InputText @bind-Value="parent.FirstName" class="form-control"/>
+            <ValidationMessage For="@(() => parent.FirstName)"/>
+        </div>
+
+        <div>
+            <label>Second Name</label>
+            <InputText @bind-Value="parent.SecondName" class="form-control"/>
+            <ValidationMessage For="@(() => parent.SecondName)"/>
+        </div>
+
+        <div>
+            <label>Email</label>
+            <InputText @bind-Value="parent.Email" class="form-control"/>
+            <ValidationMessage For="@(() => parent.Email)"/>
+        </div>
+
+        <div>
+            <label>Phone Number</label>
+            <InputText @bind-Value="parent.PhoneNumber" class="form-control"/>
+            <ValidationMessage For="@(() => parent.PhoneNumber)"/>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Parent</button>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter] public string? studentEmail { get; set; }
+
+    private ParentCreateModel parent = new ParentCreateModel();
+
+    protected override void OnInitialized()
+    {
+        parent.StudentsEmails = new List<string>();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (!string.IsNullOrEmpty(studentEmail))
+        {
+            parent.StudentsEmails.Add(studentEmail);
+        }
+
+        await ParentService.CreateParent(parent);
+        Navigation.NavigateTo("/");
+    }
+
+}

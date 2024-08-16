@@ -10,6 +10,7 @@ public class StudentService(HttpClient httpClient) : IStudentService
         CancellationToken cancellationToken = default)
     {
         var urlRequest = $"http://localhost:5180/api/student?CurrentPage={paginationRequest.CurrentPage}&PageSize={paginationRequest.PageSize}";
+        urlRequest += string.IsNullOrEmpty(parentName) ? "" : $"&parentName={parentName}";
         var students = await httpClient.GetFromJsonAsync<PaginationResponse<StudentViewModel>>(urlRequest, cancellationToken: cancellationToken);
         return students!;
     }
@@ -21,9 +22,10 @@ public class StudentService(HttpClient httpClient) : IStudentService
         return students!;
     }
 
-    public Task<StudentViewModel> PostStudent(StudentCreateModel studentCreateModel, CancellationToken cancellationToken = default)
+    public async Task PostStudent(StudentCreateModel studentCreateModel, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var urlRequest = $"http://localhost:5180/api/student";
+        var students = await httpClient.PostAsJsonAsync(urlRequest, studentCreateModel, cancellationToken: cancellationToken);
     }
 
     public async Task UpdateStudent(StudentUpdateModel studentCreateModel, CancellationToken cancellationToken = default)
@@ -35,11 +37,12 @@ public class StudentService(HttpClient httpClient) : IStudentService
     public async Task DelStudent(int studentId, CancellationToken cancellationToken = default)
     {
         var urlRequest = $"http://localhost:5180/api/student/{studentId}";
-        var responseMessage = await httpClient.DeleteAsync(urlRequest, cancellationToken: cancellationToken);
+        await httpClient.DeleteAsync(urlRequest, cancellationToken: cancellationToken);
     }
 
-    public Task<StudentViewModel> RemoveParent(int studentId, int parentId, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
+    public async Task RemoveParent(int studentId, int parentId, CancellationToken cancellationToken = default)
+    { 
+        var urlRequest = $"http://localhost:5180/api/student/parent?studentId={studentId}&parentId={parentId}";
+        await httpClient.DeleteAsync(urlRequest, cancellationToken: cancellationToken);
     }
 }

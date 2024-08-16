@@ -4,47 +4,57 @@
 @inject IStudentService StudentsService
 @inject NavigationManager Navigation
 
-@if (students == null)
+@if (_students is null)
 {
     <p>Loading...</p>
 }
 else
 {
+    <h3>Filter Students by Parent's Name</h3>
+    <InputText @bind-Value="_parentNameSurname" @oninput="ApplyFilter"
+               placeholder="Enter parent's name..."
+               style="width: 100%; padding: 12px; margin-bottom: 20px; box-sizing: border-box; border: 2px solid #ccc; border-radius: 4px; font-size: 14px; font-family: Arial, sans-serif; transition: border-color 0.3s ease;" />
+    
+    <button class="add-student" @onclick="NavigateToAddStudent">Add Student</button>
+    
     <table class="student-table">
         <thead>
-            <tr>
-                <th>Id</th>
-                <th>First name</th>
-                <th>Second name</th>
-                <th>Email</th>
-                <th>Phone number</th>
-                <th>Group</th>
-                <th>Parents</th>
-                <th>Actions</th>
-            </tr>
+        <tr>
+            <th>Id</th>
+            <th>First name</th>
+            <th>Second name</th>
+            <th>Email</th>
+            <th>Phone number</th>
+            <th>Group</th>
+            <th>Parents</th>
+            <th>Actions</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var student in students.Data)
-            {
-                <tr>
-                    <td>@student.Id</td>
-                    <td>@student.FirstName</td>
-                    <td>@student.SecondName</td>
-                    <td>@student.Email</td>
-                    <td>@student.PhoneNumber</td>
-                    <td>@student.Group</td>
-                    <td>
-                        @foreach (var parent in student.Parents)
-                        {
-                            <span>@parent.FirstName @parent.SecondName</span><br />
-                        }
-                    </td>
-                    <td>
-                        <button @onclick="() => NavigateToUpdate(student.Id)">Update</button>
-                        <button @onclick="() => DeleteStudent(student.Id)">Delete</button>
-                    </td>
-                </tr>
-            }
+        @foreach (var student in _students.Data)
+        {
+            <tr>
+                <td @onclick="() => NavigateToDetail(student.Id)" style="cursor: pointer;">
+                    @student.Id
+                </td>
+                <td>@student.FirstName</td>
+                <td>@student.SecondName</td>
+                <td>@student.Email</td>
+                <td>@student.PhoneNumber</td>
+                <td>@student.Group</td>
+                <td>
+                    @foreach (var parent in student.Parents)
+                    {
+                        <span>@parent.FirstName @parent.SecondName</span>
+                        <br/>
+                    }
+                </td>
+                <td>
+                    <button @onclick="() => NavigateToUpdate(student.Id)">Update</button>
+                    <button style="background-color: red;" @onclick="() => DeleteStudent(student.Id)">Delete</button>
+                </td>
+            </tr>
+        }
         </tbody>
     </table>
 
@@ -53,7 +63,7 @@ else
         {
             <button @onclick="() => LoadStudents(CurrentPage - 1)">Previous</button>
         }
-        @if (CurrentPage < students.TotalPages)
+        @if (CurrentPage < _students.TotalPages)
         {
             <button @onclick="() => LoadStudents(CurrentPage + 1)">Next</button>
         }
@@ -63,22 +73,30 @@ else
 @code {
     [Parameter] public int CurrentPage { get; set; }
     [Parameter] public EventCallback<int> OnPageChanged { get; set; }
-    
-    private PaginationResponse<StudentViewModel> students;
+
+    private string _parentNameSurname = null!;
+    private PaginationResponse<StudentViewModel> _students = null!;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadStudents(CurrentPage);
     }
 
+    private async Task ApplyFilter(ChangeEventArgs e)
+    {
+        _parentNameSurname = e.Value?.ToString() ?? string.Empty;
+        CurrentPage = 1;
+        await LoadStudents(CurrentPage);
+    }
+
     private async Task LoadStudents(int page)
     {
         CurrentPage = page;
-        students = await StudentsService.GetStudents(new PaginationRequest
+        _students = await StudentsService.GetStudents(new PaginationRequest
         {
             CurrentPage = CurrentPage,
             PageSize = 5
-        });
+        }, _parentNameSurname);
     }
 
     private void NavigateToUpdate(int id)
@@ -86,9 +104,20 @@ else
         Navigation.NavigateTo($"/update-student/{id}");
     }
 
+    private void NavigateToDetail(int id)
+    {
+        Navigation.NavigateTo($"/student-details/{id}");
+    }
+
     private async Task DeleteStudent(int id)
     {
         await StudentsService.DelStudent(id);
         await LoadStudents(CurrentPage);
     }
+    
+    private void NavigateToAddStudent()
+    {
+        Navigation.NavigateTo($"/update-student"); // Navigate to the add-student page
+    }
+
 }

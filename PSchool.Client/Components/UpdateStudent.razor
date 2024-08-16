@@ -1,12 +1,10 @@
-@page "/update-student/{id:int}"
+@page "/update-student/{id:int?}"
 @using AutoMapper
 @using PSchool.Client.Models
 @using PSchool.Client.Services.Interfaces
 @inject IStudentService StudentService
 @inject NavigationManager Navigation
 @inject IMapper Mapper
-
-<h3>Update Student</h3>
 
 @if (student == null)
 {
@@ -15,47 +13,82 @@
 else
 {
     <EditForm Model="student" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
 
-        <div>
-            <label for="firstName">First Name:</label>
-            <InputText id="firstName" @bind-Value="student.FirstName" />
-        </div>
-        <div>
-            <label for="secondName">Second Name:</label>
-            <InputText id="secondName" @bind-Value="student.SecondName" />
-        </div>
-        <div>
-            <label for="email">Email:</label>
-            <InputText id="email" @bind-Value="student.Email" />
-        </div>
-        <div>
-            <label for="phoneNumber">Phone Number:</label>
-            <InputText id="phoneNumber" @bind-Value="student.PhoneNumber" />
-        </div>
-        <div>
-            <label for="group">Group:</label>
-            <InputText id="group" @bind-Value="student.Group" />
-        </div>
+        <div class="update-student-form">
+            <h2>@(Id.HasValue ? "Update Student" : "Add Student")</h2>
 
-        <button type="submit">Save</button>
-        <button type="button" @onclick="Cancel">Cancel</button>
+            <div>
+                <label>First Name</label>
+                <InputText @bind-Value="student.FirstName" class="form-control"/>
+                <ValidationMessage For="@(() => student.FirstName)"/>
+            </div>
+
+            <div>
+                <label>Second Name</label>
+                <InputText @bind-Value="student.SecondName" class="form-control"/>
+                <ValidationMessage For="@(() => student.SecondName)"/>
+            </div>
+
+            <div>
+                <label>Email</label>
+                <InputText @bind-Value="student.Email" class="form-control"/>
+                <ValidationMessage For="@(() => student.Email)"/>
+            </div>
+
+            <div>
+                <label>Phone Number</label>
+                <InputText @bind-Value="student.PhoneNumber" class="form-control"/>
+                <ValidationMessage For="@(() => student.PhoneNumber)"/>
+            </div>
+            <div>
+                <label>Group</label>
+                <InputText @bind-Value="student.Group" class="form-control"/>
+                <ValidationMessage For="@(() => student.Group)"/>
+            </div>
+
+            <button class="save" type="submit">@((Id.HasValue ? "Save" : "Add"))</button>
+            <button class="cancel" type="button" @onclick="Cancel">Cancel</button>
+        </div>
     </EditForm>
 }
 
 @code {
-    [Parameter] public int Id { get; set; }
-    private StudentViewModel student;
+    [Parameter] public int? Id { get; set; }
+    private StudentViewModel student = new StudentViewModel();
+    private bool formInvalid;
 
     protected override async Task OnInitializedAsync()
     {
-        student = await StudentService.GetStudents(Id);
+        if (Id.HasValue)
+        {
+            student = await StudentService.GetStudents(Id.Value);
+        }
+        else
+        {
+            student = new StudentViewModel(); // Initialize with default values if no Id is provided
+        }
     }
 
     private async Task HandleValidSubmit()
     {
-        await StudentService.UpdateStudent(Mapper.Map<StudentUpdateModel>(student));
+        formInvalid = false;
+        if (student.FirstName == null || student.SecondName == null || student.Email == null || student.PhoneNumber == null || student.Group == null)
+        {
+            formInvalid = true;
+            return;
+        }
+
+        if (Id.HasValue)
+        {
+            await StudentService.UpdateStudent(Mapper.Map<StudentUpdateModel>(student));
+        }
+        else
+        {
+            await StudentService.PostStudent(Mapper.Map<StudentCreateModel>(student));
+        }
+
         Navigation.NavigateTo("/");
     }
 
@@ -63,4 +96,5 @@ else
     {
         Navigation.NavigateTo("/");
     }
+
 }
