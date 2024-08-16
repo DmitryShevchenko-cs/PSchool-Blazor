@@ -1,22 +1,22 @@
-@page "/add-parent/{studentEmail?}"
+@page "/update-parent/{parentId:int}"
+@using AutoMapper
 @using PSchool.Client.Models
 @using PSchool.Client.Services.Interfaces
 @inject IParentService ParentService
 @inject IStudentService StudentService
 @inject NavigationManager Navigation
-@using System.ComponentModel.DataAnnotations
+@inject IMapper Mapper
+
 
 <div class="add-parent-form">
-    <h3>Add Parent</h3>
+    <h3>Update Parent</h3>
 
     <EditForm Model="parent" OnValidSubmit="HandleValidSubmit">
         <DataAnnotationsValidator/>
         <ValidationSummary/>
 
         <div>
-            <label>Student Email</label>
-            <InputText @bind-Value="parent.StudentsEmail" class="form-control"/>
-            <ValidationMessage For="@(() => parent.StudentsEmail)"/>
+            <label>Parent Id: @parent.Id</label>
         </div>
 
         <div>
@@ -49,24 +49,23 @@
 </div>
 
 @code {
-    [Parameter] public string? studentEmail { get; set; }
+    [Parameter] public int parentId { get; set; }
 
-    private ParentCreateModel parent = new ParentCreateModel();
+    private ParentUpdateModel parent = new ParentUpdateModel();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        parent.StudentsEmail = studentEmail;
+        parent = Mapper.Map<ParentUpdateModel>(await ParentService.GetParents(parentId));
     }
 
     private async Task HandleValidSubmit()
     {
-        await ParentService.CreateParent(parent);
+        await ParentService.UpdateParent(parent);
         Navigation.NavigateTo("/parents");
     }
-    
+
     private void Cancel()
     {
         Navigation.NavigateTo("/parents");
     }
-
 }

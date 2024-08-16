@@ -9,5 +9,8 @@ public class MapperConfiguration : Profile
     {
         CreateMap<StudentUpdateModel, StudentViewModel>().ReverseMap();
         CreateMap<StudentCreateModel, StudentViewModel>().ReverseMap();
+        
+        
+        CreateMap<ParentUpdateModel, ParentViewModel>().ReverseMap();
     }
 }

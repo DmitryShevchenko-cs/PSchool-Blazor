@@ -1,0 +1,109 @@
+@page "/parents-list"
+@using PSchool.Client.Models
+@using PSchool.Client.Services.Interfaces
+@inject IParentService ParentService
+@inject NavigationManager Navigation
+
+@if (_parents is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <button class="add-parent" @onclick="NavigateToAddStudent">Add Parent</button>
+    
+    <table class="parent-table">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>First name</th>
+            <th>Second name</th>
+            <th>Email</th>
+            <th>Phone number</th>
+            <th>Children</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var parent in _parents.Data)
+        {
+            <tr>
+                <td @onclick="() => NavigateToDetail(parent.Id)" style="cursor: pointer;">
+                    @parent.Id
+                </td>
+                <td>@parent.FirstName</td>
+                <td>@parent.SecondName</td>
+                <td>@parent.Email</td>
+                <td>@parent.PhoneNumber</td>
+                <td>
+                    @foreach (var child in parent.Children)
+                    {
+                        <span>@child.FirstName @child.SecondName @child.Group</span>
+                        <br/>
+                    }
+                </td>
+                <td>
+                    <button @onclick="() => NavigateToUpdate(parent.Id)">Update</button>
+                    <button style="background-color: red;" @onclick="() => DeleteStudent(parent.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        @if (CurrentPage > 1)
+        {
+            <button @onclick="() => LoadParents(CurrentPage - 1)">Previous</button>
+        }
+        @if (CurrentPage < _parents.TotalPages)
+        {
+            <button @onclick="() => LoadParents(CurrentPage + 1)">Next</button>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public int CurrentPage { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+
+    private string _parentNameSurname = null!;
+    private PaginationResponse<ParentViewModel> _parents = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadParents(CurrentPage);
+    }
+    
+    private async Task LoadParents(int page)
+    {
+        CurrentPage = page;
+        _parents = await ParentService.GetParents(new PaginationRequest
+        {
+            CurrentPage = CurrentPage,
+            PageSize = 5
+        });
+    }
+
+    private void NavigateToUpdate(int id)
+    {
+        Navigation.NavigateTo($"/update-parent/{id}");
+    }
+
+    private void NavigateToDetail(int id)
+    {
+        Navigation.NavigateTo($"/parent-details/{id}");
+    }
+
+    private async Task DeleteStudent(int id)
+    {
+        await ParentService.DeleteParent(id);
+        await LoadParents(CurrentPage);
+    }
+    
+    private void NavigateToAddStudent()
+    {
+        Navigation.NavigateTo($"/add-parent"); // Navigate to the add-student page
+    }
+
+}
