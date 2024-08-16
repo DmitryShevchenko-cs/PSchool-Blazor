@@ -1,7 +1,17 @@
 ﻿@page "/"
+@using PSchool.Client.Components
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Students</PageTitle>
 
-<h1>Hello, Test!</h1>
+<h1>Students List</h1>
 
-Welcome to your new app.
+<StudentsTable CurrentPage="currentPage" OnPageChanged="OnPageChanged"/>
+
+@code {
+    private int currentPage = 1;
+
+    private async Task OnPageChanged(int page)
+    {
+        currentPage = page;
+    }
+}

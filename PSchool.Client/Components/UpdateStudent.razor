@@ -1,0 +1,100 @@
+@page "/update-student/{id:int?}"
+@using AutoMapper
+@using PSchool.Client.Models
+@using PSchool.Client.Services.Interfaces
+@inject IStudentService StudentService
+@inject NavigationManager Navigation
+@inject IMapper Mapper
+
+@if (student == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="student" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+
+        <div class="update-student-form">
+            <h2>@(Id.HasValue ? "Update Student" : "Add Student")</h2>
+
+            <div>
+                <label>First Name</label>
+                <InputText @bind-Value="student.FirstName" class="form-control"/>
+                <ValidationMessage For="@(() => student.FirstName)"/>
+            </div>
+
+            <div>
+                <label>Second Name</label>
+                <InputText @bind-Value="student.SecondName" class="form-control"/>
+                <ValidationMessage For="@(() => student.SecondName)"/>
+            </div>
+
+            <div>
+                <label>Email</label>
+                <InputText @bind-Value="student.Email" class="form-control"/>
+                <ValidationMessage For="@(() => student.Email)"/>
+            </div>
+
+            <div>
+                <label>Phone Number</label>
+                <InputText @bind-Value="student.PhoneNumber" class="form-control"/>
+                <ValidationMessage For="@(() => student.PhoneNumber)"/>
+            </div>
+            <div>
+                <label>Group</label>
+                <InputText @bind-Value="student.Group" class="form-control"/>
+                <ValidationMessage For="@(() => student.Group)"/>
+            </div>
+
+            <button class="save" type="submit">@((Id.HasValue ? "Save" : "Add"))</button>
+            <button class="cancel" type="button" @onclick="Cancel">Cancel</button>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int? Id { get; set; }
+    private StudentViewModel student = new StudentViewModel();
+    private bool formInvalid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id.HasValue)
+        {
+            student = await StudentService.GetStudents(Id.Value);
+        }
+        else
+        {
+            student = new StudentViewModel(); // Initialize with default values if no Id is provided
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        formInvalid = false;
+        if (student.FirstName == null || student.SecondName == null || student.Email == null || student.PhoneNumber == null || student.Group == null)
+        {
+            formInvalid = true;
+            return;
+        }
+
+        if (Id.HasValue)
+        {
+            await StudentService.UpdateStudent(Mapper.Map<StudentUpdateModel>(student));
+        }
+        else
+        {
+            await StudentService.PostStudent(Mapper.Map<StudentCreateModel>(student));
+        }
+
+        Navigation.NavigateTo("/");
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/");
+    }
+
+}

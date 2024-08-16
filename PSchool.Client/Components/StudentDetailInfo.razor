@@ -1,0 +1,87 @@
+@page "/student-details/{Id:int}"
+@using PSchool.Client.Models
+@using PSchool.Client.Services.Interfaces
+@inject IStudentService StudentService
+@inject NavigationManager Navigation
+
+<h2>Student Details</h2>
+
+@if (student == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="student">
+        <div>
+            <strong>First Name:</strong> @student.FirstName
+        </div>
+        <div>
+            <strong>Second Name:</strong> @student.SecondName
+        </div>
+        <div>
+            <strong>Email:</strong> @student.Email
+        </div>
+        <div>
+            <strong>Phone Number:</strong> @student.PhoneNumber
+        </div>
+        <div>
+            <strong>Group:</strong> @student.Group
+        </div>
+    </div>
+
+    <h3>Parents</h3>
+    <button class="add" @onclick="() => NavigateToAddParent(student.Email)" style="cursor: pointer;">Add</button>
+    <div class="parents">
+        @foreach (var parent in student.Parents)
+        {
+            <div class="parent" >
+                <div @onclick="() => NavigateToDetail(parent.Id)" style="cursor: pointer;">
+                    <div>
+                        <strong>First Name:</strong> @parent.FirstName
+                    </div>
+                    <div>
+                        <strong>Second Name:</strong> @parent.SecondName
+                    </div>
+                    <div>
+                        <strong>Email:</strong> @parent.Email
+                    </div>
+                    <div>
+                        <strong>Phone Number:</strong> @parent.PhoneNumber
+                    </div>
+                </div>
+                <button @onclick="() => DelParent(student.Id, parent.Id)">Remove parent</button>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private StudentViewModel student;
+
+    protected override async Task OnInitializedAsync()
+    {
+        student = await StudentService.GetStudents(Id);
+    }
+    
+    private void NavigateToDetail(int id)
+    {
+        Navigation.NavigateTo($"/parent-details/{id}");
+    }
+    
+    private void NavigateToAddParent(string? studentEmail)
+    {
+        var url = string.IsNullOrEmpty(studentEmail) ? "/add-parent" : $"/add-parent/{studentEmail}";
+        Navigation.NavigateTo(url);
+    }
+
+    
+    private async Task DelParent(int studentId, int parentId)
+    {
+        await StudentService.RemoveParent(studentId, parentId);
+        student = await StudentService.GetStudents(Id);
+    }
+
+}
