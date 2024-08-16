@@ -24,14 +24,14 @@ public class StudentService(HttpClient httpClient) : IStudentService
 
     public async Task PostStudent(StudentCreateModel studentCreateModel, CancellationToken cancellationToken = default)
     {
-        var urlRequest = $"http://localhost:5180/api/student";
-        var students = await httpClient.PostAsJsonAsync(urlRequest, studentCreateModel, cancellationToken: cancellationToken);
+        const string urlRequest = $"http://localhost:5180/api/student";
+        await httpClient.PostAsJsonAsync(urlRequest, studentCreateModel, cancellationToken: cancellationToken);
     }
 
     public async Task UpdateStudent(StudentUpdateModel studentCreateModel, CancellationToken cancellationToken = default)
     {
         var urlRequest = $"http://localhost:5180/api/student";
-        var students = await httpClient.PutAsJsonAsync(urlRequest, studentCreateModel, cancellationToken: cancellationToken);
+        await httpClient.PutAsJsonAsync(urlRequest, studentCreateModel, cancellationToken: cancellationToken);
     }
 
     public async Task DelStudent(int studentId, CancellationToken cancellationToken = default)

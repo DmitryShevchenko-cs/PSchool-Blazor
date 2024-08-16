@@ -1,8 +1,11 @@
-@page "/students"
+@page "/students-list"
 @using PSchool.Client.Models
 @using PSchool.Client.Services.Interfaces
 @inject IStudentService StudentsService
 @inject NavigationManager Navigation
+
+
+<button class="add-student" @onclick="NavigateToAddStudent">Add Student</button>
 
 @if (_students is null)
 {
@@ -14,8 +17,6 @@ else
     <InputText @bind-Value="_parentNameSurname" @oninput="ApplyFilter"
                placeholder="Enter parent's name..."
                style="width: 100%; padding: 12px; margin-bottom: 20px; box-sizing: border-box; border: 2px solid #ccc; border-radius: 4px; font-size: 14px; font-family: Arial, sans-serif; transition: border-color 0.3s ease;" />
-    
-    <button class="add-student" @onclick="NavigateToAddStudent">Add Student</button>
     
     <table class="student-table">
         <thead>

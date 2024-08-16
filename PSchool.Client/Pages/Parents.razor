@@ -1,0 +1,17 @@
+﻿@page "/parents"
+@using PSchool.Client.Components
+
+<PageTitle>Parents</PageTitle>
+
+<h1>Parents List</h1>
+
+<ParentsTable CurrentPage="currentPage" OnPageChanged="OnPageChanged"/>
+
+@code {
+    private int currentPage = 1;
+
+    private async Task OnPageChanged(int page)
+    {
+        currentPage = page;
+    }
+}
